@@ -23,6 +23,10 @@ public class Text implements UIComponent {
         this.font = font;
     }
 
+    public void setMessage(String message) {
+        this.text = createGlyphLayout(message, font);
+    }
+
     @Override
     public void render(SpriteBatch spriteBatch) {
         // Render the text

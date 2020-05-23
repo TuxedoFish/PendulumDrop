@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.World;
+import com.pendulum.game.MyGdxGame;
 import com.pendulum.game.userinterface.UIController;
 import com.pendulum.game.utils.Constants;
 
@@ -163,7 +164,13 @@ public class PlayScreen {
 
     private EventHandler eventHandler = new EventHandler();
 
-    public PlayScreen(com.pendulum.game.MyGdxGame app) {
+    // Advertising related
+    private MyGdxGame.AdService adService;
+    private int gamesSinceLastAdvert = 0;
+    private static final int GAMES_PER_ADVERT = 2;
+    private boolean hasReplayed = false;
+
+    public PlayScreen(MyGdxGame app, MyGdxGame.AdService adService) {
         // Load in the data
         this.app = app;
         th = new com.pendulum.game.texture.TextureHolder();
@@ -186,6 +193,9 @@ public class PlayScreen {
                 camera.position.z);
         camera.update();
         cameraypos = camera.position.y;
+
+        // Set up the ad view interactions
+        this.adService = adService;
     }
 
     /**
@@ -475,13 +485,17 @@ public class PlayScreen {
                 }
             }
             if(entities.getGameMode() == "FALL") {
-                if((((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH*1.25f)) < cameraypos + (camera_velocity * PPM * dt))) {
-                    cameraypos = ((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH*1.25f));
-                    camera.position.set(camera.position.x, ((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH/4.0f)),
+
+                // Control where player appears on screen
+                float PLAYER_POSITION = 0.1f;
+
+                if((((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH*(1+PLAYER_POSITION))) < cameraypos + (camera_velocity * PPM * dt))) {
+                    cameraypos = ((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH*(1+PLAYER_POSITION)));
+                    camera.position.set(camera.position.x, ((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH*PLAYER_POSITION)),
                             camera.position.z);
-                } else if (((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH/4.0f)) < cameraypos + (camera_velocity * PPM * dt)) {
+                } else if (((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH*PLAYER_POSITION)) < cameraypos + (camera_velocity * PPM * dt)) {
                     cameraypos += (camera_velocity * PPM * dt);
-                    camera.position.set(camera.position.x, ((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH/4.0f)),
+                    camera.position.set(camera.position.x, ((entities.getPlayer().getPosition().y * PPM)+(WORLD_WIDTH*PLAYER_POSITION)),
                             camera.position.z);
                 } else {
                     cameraypos += (camera_velocity * PPM * dt);
@@ -506,7 +520,17 @@ public class PlayScreen {
         if(state=="SCROLL") {
             camera_velocity=scrollvel;
             if((scrollvel>0 && camera.position.y>scrolllimit) || (scrollvel<0 && camera.position.y<scrolllimit)) {
-                state=scrollchangeto;
+                state = scrollchangeto;
+
+                // If you have just navigated to the game over screen
+                if (state == "GAMEOVER") {
+                    gamesSinceLastAdvert ++;
+                    if(gamesSinceLastAdvert == GAMES_PER_ADVERT) {
+                        adService.showInterstitial();
+                        gamesSinceLastAdvert = 0;
+                    }
+                }
+
                 if(scrollchangeto=="GAMEOVER" && entities.getGameMode() == "SLALOM") {timer = MAX_TIMER; timer_layout.setText(score_font, String.format("%.2f", timer), new Color(1.0f, 1.0f, 1.0f, timer_transparency), timer_layout.width, 1, false);}
                 if(scrollchangeto=="STARTSCREEN") {
                     entities.play(world);
@@ -521,8 +545,10 @@ public class PlayScreen {
             } else {
                 camera.position.set(camera.position.x, camera.position.y + (camera_velocity * PPM * dt),
                         camera.position.z);
-                cameraypos = camera.position.y + (camera_velocity * PPM * dt);
-                camera.update();
+                if(state!="PAUSE") {
+                    cameraypos = camera.position.y + (camera_velocity * PPM * dt);
+                    camera.update();
+                }
             }
         }
         handleInput(input.update());
@@ -566,9 +592,6 @@ public class PlayScreen {
                     instruction_fadein=-1;
                 }
             }
-        }
-        if(instruction_given && state == "PAUSE") {
-            state="PLAY";
         }
         if(entities.getGameMode()=="SLALOM") {
             boolean update = timer_transparency!=entities.getGamemodeTransparency();
@@ -692,7 +715,8 @@ public class PlayScreen {
         }
         if(playAgain) {
             state = "SCROLL";
-            scroll(scroll_speed, entities.getLastDeathHeight() - (REAL_WORLD_HEIGHT * 3.0f), "STARTSCREEN", "respawn");
+            float SCREEN_FRACTION = 3.2f;
+            scroll(scroll_speed, entities.getLastDeathHeight() - (REAL_WORLD_HEIGHT * SCREEN_FRACTION), "STARTSCREEN", "respawn");
             loadStartScreen();
             playAgain = false;
         }
@@ -714,7 +738,8 @@ public class PlayScreen {
             game_on_transparency-=dt*2.0f;
             title.setTransparency(game_on_transparency);
             playbutton.setTransparency(game_on_transparency);
-            camera.translate(0.0f, (REAL_WORLD_HEIGHT*0.25f)*dt*2.0f);
+            float CAMERA_FRACTION = 0.1f;
+            camera.translate(0.0f, (REAL_WORLD_HEIGHT*CAMERA_FRACTION)*dt*2.0f);
             camera.update();
             cameraypos=camera.position.y;
             if(game_on_transparency<=0.0f) {
@@ -776,24 +801,56 @@ public class PlayScreen {
                 }
 
                 @Override
-                public void navigateToShop() {
-                    if(state=="GAMEOVER") {
+                public boolean navigateToShop() {
+                    boolean should = state=="GAMEOVER";
+                    if(should) {
                         scroll_shop = 1;
                     }
+                    return should;
                 }
 
                 @Override
-                public void navigateToReplay() {
-                    if(state=="COLLECTIBLES") {
+                public boolean navigateToReplay() {
+                    boolean should = state=="COLLECTIBLES";
+                    if(should) {
                         scroll_shop = 2;
                     }
+                    return should;
                 }
 
                 @Override
-                public void playAgain() {
-                    if(state=="GAMEOVER") {
+                public boolean playAgain() {
+                    boolean should = state=="GAMEOVER";
+                    if(should) {
                         playAgain = true;
                     }
+                    return should;
+                }
+
+                @Override
+                public void confirmDeath() {
+                    gameoverAfterChoice();
+                }
+
+                @Override
+                public void watchVideo() {
+                    adService.showRewardAdvert(new MyGdxGame.CustomRewardCallback() {
+
+                        @Override
+                        public void onSuccess() {
+                            // Can only replay once
+                            hasReplayed = true;
+                            // Make sure that the count on adverts is reset
+                            // to avoid excessive adverts
+                            gamesSinceLastAdvert = 0;
+                            state = "PLAY";
+                        }
+
+                        @Override
+                        public void onFailure() {
+                            gameoverAfterChoice();
+                        }
+                    });
                 }
             });
 
@@ -831,22 +888,34 @@ public class PlayScreen {
         return false;
     }
 
-    public void gameover() {
+    public void gameoverAfterChoice() {
         eventHandler.addEvent(new StateEvent() {
             @Override
             public void triggerEvent() {
-                if(score>preferences.getHighScore()) {
+                hasReplayed = false;
+                if (score > preferences.getHighScore()) {
                     preferences.setHighScore(score);
                 }
                 entities.died(world, camera);
-                UserInterface.showReplayScreen(score);
+                UserInterface.showReplayScreen();
                 state = "SCROLL";
-                scrollvel=scroll_speed;
+                scrollvel = scroll_speed;
                 scrollchangeto = "GAMEOVER";
-                scrolllimit = entities.getLastDeathHeight()-(REAL_WORLD_HEIGHT*1.5f);
+                scrolllimit = entities.getLastDeathHeight() - (REAL_WORLD_HEIGHT * 1.5f);
                 specialstate = "reload game";
             }
         });
+    }
+
+    public void gameover() {
+
+        // If have not already died then give chance to revive
+        if(!hasReplayed) {
+            state = "PAUSE";
+            UserInterface.showReviveOpportunity();
+        } else {
+            gameoverAfterChoice();
+        }
     }
 
     public void render() {

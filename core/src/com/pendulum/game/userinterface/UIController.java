@@ -12,6 +12,7 @@ import com.pendulum.game.userinterface.pages.HelpPage;
 import com.pendulum.game.userinterface.pages.MainOverlayPage;
 import com.pendulum.game.userinterface.pages.MenuPage;
 import com.pendulum.game.userinterface.pages.ReplayPage;
+import com.pendulum.game.userinterface.pages.RevivePage;
 import com.pendulum.game.userinterface.pages.SettingsPage;
 import com.pendulum.game.userinterface.pages.ShopPage;
 import com.pendulum.game.userinterface.pages.UIContainer;
@@ -24,9 +25,11 @@ public class UIController {
 
     public interface UIControllerInteractions {
         public void setIsSoundOn(boolean isSoundOn);
-        public void navigateToShop();
-        public void navigateToReplay();
-        public void playAgain();
+        public boolean navigateToShop();
+        public boolean navigateToReplay();
+        public boolean playAgain();
+        public void confirmDeath();
+        public void watchVideo();
     }
 
     // Settings passed in from the controller
@@ -43,6 +46,7 @@ public class UIController {
     private ReplayPage replayPage;
     private HelpPage helpPage;
     private ShopPage shopPage;
+    private RevivePage revivePage;
 
     public UIController(Vector2 dimensions, TextureHolder textures, Preferences preferences,
                         UIControllerInteractions interactions) {
@@ -127,27 +131,44 @@ public class UIController {
             }
         });
 
-        replayPage = new ReplayPage(dimensions, textures, font, new ReplayPage.ReplayPageInteractions() {
+        replayPage = new ReplayPage(dimensions, textures, font, preferences, new ReplayPage.ReplayPageInteractions() {
             @Override
             public void openShop() {
-                interactions.navigateToShop();
-                replayPage.hide();
-                shopPage.show();
+                if(interactions.navigateToShop()) {
+                    replayPage.hide();
+                    shopPage.show();
+                }
             }
 
             @Override
             public void playAgain() {
-                interactions.playAgain();
-                replayPage.hide();
+                if(interactions.playAgain()) {
+                    replayPage.hide();
+                }
             }
         });
 
         shopPage = new ShopPage(dimensions, textures, font, new ShopPage.ShopPageInteractions() {
             @Override
             public void goBack() {
-                interactions.navigateToReplay();
-                shopPage.hide();
-                replayPage.show();
+                if(interactions.navigateToReplay()) {
+                    shopPage.hide();
+                    replayPage.show();
+                }
+            }
+        });
+
+        revivePage = new RevivePage(dimensions, textures, font, new RevivePage.RevivePageInteractions() {
+            @Override
+            public void cancel() {
+                revivePage.hide();
+                interactions.confirmDeath();
+            }
+
+            @Override
+            public void confirm() {
+                revivePage.hide();
+                interactions.watchVideo();
             }
         });
 
@@ -159,6 +180,7 @@ public class UIController {
         pages.add(menuPage);
         pages.add(helpPage);
         pages.add(shopPage);
+        pages.add(revivePage);
     }
 
     public void showMainScreen() {
@@ -166,7 +188,12 @@ public class UIController {
         mainOverlayPage.show();
     }
 
-    public void showReplayScreen(int score) {
+    public void showReviveOpportunity() {
+        // Show the revive opportunity
+        revivePage.show();
+    }
+
+    public void showReplayScreen() {
         // Show the replay screen
         replayPage.show();
     }

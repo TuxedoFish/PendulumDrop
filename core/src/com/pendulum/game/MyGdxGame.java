@@ -22,6 +22,23 @@ public class MyGdxGame extends ApplicationAdapter {
 	private boolean created = false;
 	private boolean loading = false;
 
+	private AdService adService;
+
+	public interface AdService {
+		boolean isInterstitialLoaded();
+		void showInterstitial();
+		void showRewardAdvert(CustomRewardCallback callback);
+	}
+
+	public interface CustomRewardCallback {
+		public void onSuccess();
+		public void onFailure();
+	}
+
+	public MyGdxGame(AdService adService) {
+		this.adService = adService;
+	}
+
 	@Override
 	public void create () {
 		Gdx.graphics.setTitle("Pendulum");
@@ -59,7 +76,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 		if(!loading) {
 			loading = true;
-			playScreen = new PlayScreen(this);
+			playScreen = new PlayScreen(this, adService);
 			playScreen.create();
 		}
 	}

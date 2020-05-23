@@ -164,6 +164,10 @@ public class TextureHolder {
             texturenames.add("button_right_arrow.png");
             textures.add(assetManager.get("images/button_shop.png", Texture.class));
             texturenames.add("button_shop.png");
+            textures.add(assetManager.get("images/button_confirm.png", Texture.class));
+            texturenames.add("button_confirm.png");
+            textures.add(assetManager.get("images/button_cancel.png", Texture.class));
+            texturenames.add("button_cancel.png");
             textures.add(assetManager.get("images/help_image_1.png", Texture.class));
             texturenames.add("help_image_1.png");
             textures.add(assetManager.get("images/help_image_2.png", Texture.class));
@@ -322,6 +326,8 @@ public class TextureHolder {
         assetManager.load("images/button_left_arrow.png", Texture.class, param);
         assetManager.load("images/button_right_arrow.png", Texture.class, param);
         assetManager.load("images/button_shop.png", Texture.class, param);
+        assetManager.load("images/button_confirm.png", Texture.class, param);
+        assetManager.load("images/button_cancel.png", Texture.class, param);
         assetManager.load("images/help_image_1.png", Texture.class, param);
         assetManager.load("images/help_image_2.png", Texture.class, param);
         assetManager.load("images/help_image_3.png", Texture.class, param);

@@ -11,10 +11,14 @@ import com.pendulum.game.userinterface.components.Button;
 import com.pendulum.game.userinterface.components.ButtonStyle;
 import com.pendulum.game.userinterface.components.OnClickButtonInterface;
 import com.pendulum.game.userinterface.components.Text;
+import com.pendulum.game.utils.Preferences;
 
 import java.util.ArrayList;
 
 public class ReplayPage extends UIContainer implements UIPage {
+
+    private Text scoreText;
+    private Preferences preferences;
 
     public interface ReplayPageInteractions {
         public void openShop();
@@ -22,8 +26,9 @@ public class ReplayPage extends UIContainer implements UIPage {
     }
 
     public ReplayPage(Vector2 dimensions, TextureHolder textures, FreeTypeFontGenerator generator,
-          ReplayPageInteractions interactions) {
+                      Preferences preferences, ReplayPageInteractions interactions) {
         components = new ArrayList<>();
+        this.preferences = preferences;
 
         FreeTypeFontGenerator.FreeTypeFontParameter menuParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         menuParameter.size = (int)(108.0f*(Gdx.graphics.getHeight()/2000.0f));;
@@ -108,7 +113,7 @@ public class ReplayPage extends UIContainer implements UIPage {
                 }
         );
 
-        Text scoreText = new Text(
+        scoreText = new Text(
                 "HIGHSCORE:",
                 whiteTextFont,
                 UIController.getScreenPercentage(0.5f, 0.65f, dimensions)
@@ -126,6 +131,7 @@ public class ReplayPage extends UIContainer implements UIPage {
     @Override
     public void show() {
         shouldRender = true;
+        scoreText.setMessage("HIGHSCORE: " + preferences.getHighScore());
     }
 
     @Override
