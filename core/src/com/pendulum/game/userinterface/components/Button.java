@@ -7,14 +7,15 @@ import com.badlogic.gdx.math.Vector2;
 public class Button implements UIComponent {
 
     // Variables that are changed for different buttons
-    private GlyphLayout text;
-    private OnClickButtonInterface eventListener;
-    private Vector2 buttonLocation;
-    private Vector2 textLocation;
-    ButtonStyle style;
+    protected GlyphLayout text;
+    protected OnClickButtonInterface eventListener;
+    protected Vector2 buttonLocation;
+    protected Vector2 textLocation;
+    protected ButtonStyle style;
 
     // Is there a hover animation
-    boolean hover = false;
+    protected boolean hover = false;
+    boolean hidden = false;
 
     /**
      *
@@ -43,26 +44,38 @@ public class Button implements UIComponent {
     @Override
     public void render(SpriteBatch spriteBatch) {
 
-        // Hover makes image smaller
-        float size = 1.0f;
-        if(hover) { size = 0.9f; }
+        if(!hidden) {
+            // Hover makes image smaller
+            float size = 1.0f;
+            if (hover) {
+                size = 0.9f;
+            }
 
-        // Render the button image
-        spriteBatch.draw(
-                style.getTexture(),
-                buttonLocation.x + ((1.0f-size)*style.getWidth()/2.0f),
-                buttonLocation.y + ((1.0f-size)*style.getHeight()/2.0f),
-                style.getWidth()*size,
-                style.getHeight()*size
-        );
+            // Render the button image
+            spriteBatch.draw(
+                    style.getTexture(),
+                    buttonLocation.x + ((1.0f - size) * style.getWidth() / 2.0f),
+                    buttonLocation.y + ((1.0f - size) * style.getHeight() / 2.0f),
+                    style.getWidth() * size,
+                    style.getHeight() * size
+            );
 
-        // Render the text
-        style.getFont().draw(
-                spriteBatch,
-                text,
-                textLocation.x,
-                textLocation.y
-        );
+            // Render the text
+            style.getFont().draw(
+                    spriteBatch,
+                    text,
+                    textLocation.x,
+                    textLocation.y
+            );
+        }
+    }
+
+    public void hide() {
+        hidden = true;
+    }
+
+    public void show() {
+        hidden = false;
     }
 
     private static GlyphLayout createGlyphLayout(String message, ButtonStyle style) {
@@ -89,6 +102,8 @@ public class Button implements UIComponent {
 
     @Override
     public boolean touchDown(Vector2 mousePosition) {
+        if(hidden) { return false; }
+
         if(mousePosition.x < buttonLocation.x + style.getWidth() &&
                 mousePosition.x > buttonLocation.x &&
                 mousePosition.y > buttonLocation.y &&
@@ -103,15 +118,22 @@ public class Button implements UIComponent {
 
     @Override
     public boolean touchUp(Vector2 mousePosition) {
-        hover = false;
+        if(hidden) { return false; }
 
         if(mousePosition.x < buttonLocation.x + style.getWidth() &&
                 mousePosition.x > buttonLocation.x &&
                 mousePosition.y > buttonLocation.y &&
                 mousePosition.y < buttonLocation.y + style.getHeight()) {
-            eventListener.onClick();
+            // Previously pressed down so when released up it is a click
+            if(hover) {
+                eventListener.onClick();
+                hover = false;
+            }
             return true;
         }
+
+        // Started pressing down but didn't release on button
+        if(hover) { hover = false; }
 
         return false;
     }

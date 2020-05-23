@@ -11,62 +11,44 @@ import com.pendulum.game.userinterface.components.Button;
 import com.pendulum.game.userinterface.components.ButtonStyle;
 import com.pendulum.game.userinterface.components.OnClickButtonInterface;
 import com.pendulum.game.userinterface.components.Text;
-import com.pendulum.game.userinterface.components.ToggleButton;
-import com.pendulum.game.utils.Preferences;
 
 import java.util.ArrayList;
 
-public class SettingsPage extends UIContainer implements UIPage {
+public class CreditsPage extends UIContainer implements UIPage {
 
-    boolean isSoundOn = true;
-
-    public interface SettingsPageInteractions {
+    public interface CreditsPageInteractions {
         public void goBack();
-        public void setIsSoundOn(boolean isSoundOn);
     }
 
-    public SettingsPage(Vector2 dimensions, TextureHolder textures, FreeTypeFontGenerator generator,
-                        Preferences preferences, SettingsPageInteractions interactions) {
-        isSoundOn = preferences.isSoundOn();
+    public CreditsPage(Vector2 dimensions, TextureHolder textures,
+                       FreeTypeFontGenerator generator, CreditsPageInteractions interactions) {
         components = new ArrayList<>();
 
         FreeTypeFontGenerator.FreeTypeFontParameter menuParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         menuParameter.size = (int)(108.0f*(Gdx.graphics.getHeight()/2000.0f));;
         BitmapFont whiteTextFont = generator.generateFont(menuParameter);
 
-        float BUTTONS_Y_PADDING = 100.0f;
         Vector2 TOP_LEFT = UIController.getScreenPercentage(
                 0.05f,
                 0.98f,
                 dimensions);
 
-        Vector2 TOP_CENTER = UIController.getScreenPercentage(
+        Vector2 DEVELOPER_DESCRIPTION_POSITION = UIController.getScreenPercentage(
                 0.5f,
                 0.85f,
                 dimensions);
 
-        Vector2 BUTTON_LOCATION = UIController.getScreenPercentage(
-                0.4f,
+        Vector2 DEVELOPER_NAME_POSITION = UIController.getScreenPercentage(
+                0.5f,
                 0.75f,
                 dimensions);
 
         // Create styles
-        ButtonStyle largeButton = new ButtonStyle(
+        ButtonStyle backButtonStyle = new ButtonStyle(
                 UIController.getScreenPercentage(0.4f, 0.0f, dimensions).x,
                 textures.getTexture("button_long.png"),
                 whiteTextFont
         );
-        ButtonStyle soundOnButton = new ButtonStyle(
-                UIController.getScreenPercentage(0.2f, 0.0f, dimensions).x,
-                textures.getTexture("button_sound_on.png"),
-                whiteTextFont
-        );
-        ButtonStyle soundOffButton = new ButtonStyle(
-                UIController.getScreenPercentage(0.2f, 0.0f, dimensions).x,
-                textures.getTexture("button_sound_off.png"),
-                whiteTextFont
-        );
-
 
         // Create the overlay for the menu
         Box menuBox = new Box(
@@ -75,47 +57,37 @@ public class SettingsPage extends UIContainer implements UIPage {
                 textures.getTexture("transparent_menu.png")
         );
 
-        // Create buttons for different settings
+        // Create button for navigating back
         Button backButton = new Button(
                 "Back",
                 TOP_LEFT,
-                largeButton,
+                backButtonStyle,
                 new OnClickButtonInterface() {
                     @Override
                     public void onClick() {
-                        System.out.println("Open the settings");
+                        System.out.println("Go back");
                         interactions.goBack();
                     }
                 }
         );
-        ToggleButton soundButton = new ToggleButton(
-                "",
-                BUTTON_LOCATION,
-                soundOnButton,
-                soundOffButton,
-                isSoundOn,
-                new OnClickButtonInterface() {
-                    @Override
-                    public void onClick() {
-                        isSoundOn = !isSoundOn;
-                        preferences.setIsSoundOn(isSoundOn);
-                        interactions.setIsSoundOn(isSoundOn);
-                        System.out.println("Is sound on: " + isSoundOn);
-                    }
-                }
+
+        Text developHint = new Text(
+                "Developed by:",
+                whiteTextFont,
+                DEVELOPER_DESCRIPTION_POSITION
         );
 
-        Text soundHint = new Text(
-                "Sound On/Off:",
+        Text developName = new Text(
+                "Harry Liversedge",
                 whiteTextFont,
-                TOP_CENTER
+                DEVELOPER_NAME_POSITION
         );
 
         // Add Elements
         components.add(menuBox);
         components.add(backButton);
-        components.add(soundHint);
-        components.add(soundButton);
+        components.add(developHint);
+        components.add(developName);
     }
 
     @Override

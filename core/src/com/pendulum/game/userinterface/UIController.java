@@ -7,12 +7,27 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.pendulum.game.texture.TextureHolder;
+import com.pendulum.game.userinterface.pages.CreditsPage;
+import com.pendulum.game.userinterface.pages.HelpPage;
 import com.pendulum.game.userinterface.pages.MainOverlayPage;
 import com.pendulum.game.userinterface.pages.MenuPage;
 import com.pendulum.game.userinterface.pages.ReplayPage;
 import com.pendulum.game.userinterface.pages.SettingsPage;
+import com.pendulum.game.userinterface.pages.ShopPage;
+import com.pendulum.game.userinterface.pages.UIContainer;
+import com.pendulum.game.utils.Preferences;
+
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UIController {
+
+    public interface UIControllerInteractions {
+        public void setIsSoundOn(boolean isSoundOn);
+        public void navigateToShop();
+        public void navigateToReplay();
+        public void playAgain();
+    }
 
     // Settings passed in from the controller
     private Vector2 dimensions;
@@ -20,14 +35,17 @@ public class UIController {
     private FreeTypeFontGenerator font;
 
     // Different pages as a list of their components
+    private ArrayList<UIContainer> pages = new ArrayList<>();
     private MainOverlayPage mainOverlayPage;
     private SettingsPage settingsPage;
+    private CreditsPage creditsPage;
     private MenuPage menuPage;
     private ReplayPage replayPage;
+    private HelpPage helpPage;
+    private ShopPage shopPage;
 
-    // State variables
-
-    public UIController(Vector2 dimensions, TextureHolder textures) {
+    public UIController(Vector2 dimensions, TextureHolder textures, Preferences preferences,
+                        UIControllerInteractions interactions) {
         // Passed in from controller
         this.textures = textures;
         this.dimensions = dimensions;
@@ -66,30 +84,91 @@ public class UIController {
             @Override
             public void openHelp() {
                 menuPage.hide();
-                mainOverlayPage.show();
+                helpPage.show();
             }
 
             @Override
             public void openCredits() {
                 menuPage.hide();
-                mainOverlayPage.show();
+                creditsPage.show();
             }
         });
 
         // Settings Page
-        settingsPage = new SettingsPage(dimensions,textures,generator, new SettingsPage.SettingsPageInteractions() {
+        settingsPage = new SettingsPage(dimensions, textures, generator, preferences,
+            new SettingsPage.SettingsPageInteractions() {
+                @Override
+                public void goBack() {
+                    settingsPage.hide();
+                    menuPage.show();
+                }
+
+                @Override
+                public void setIsSoundOn(boolean isSoundOn) {
+                    interactions.setIsSoundOn(isSoundOn);
+                }
+            });
+
+        // Settings Page
+        creditsPage = new CreditsPage(dimensions,textures,generator, new CreditsPage.CreditsPageInteractions() {
             @Override
             public void goBack() {
-                settingsPage.hide();
+                creditsPage.hide();
                 menuPage.show();
             }
         });
 
-        replayPage = new ReplayPage(dimensions, textures, font);
+        // Help Page
+        helpPage = new HelpPage(dimensions,textures,generator, new HelpPage.HelpPageInteractions() {
+            @Override
+            public void goBack() {
+                helpPage.hide();
+                menuPage.show();
+            }
+        });
 
+        replayPage = new ReplayPage(dimensions, textures, font, new ReplayPage.ReplayPageInteractions() {
+            @Override
+            public void openShop() {
+                interactions.navigateToShop();
+                replayPage.hide();
+                shopPage.show();
+            }
+
+            @Override
+            public void playAgain() {
+                interactions.playAgain();
+                replayPage.hide();
+            }
+        });
+
+        shopPage = new ShopPage(dimensions, textures, font, new ShopPage.ShopPageInteractions() {
+            @Override
+            public void goBack() {
+                interactions.navigateToReplay();
+                shopPage.hide();
+                replayPage.show();
+            }
+        });
+
+        // Add pages
+        pages.add(replayPage);
+        pages.add(mainOverlayPage);
+        pages.add(settingsPage);
+        pages.add(creditsPage);
+        pages.add(menuPage);
+        pages.add(helpPage);
+        pages.add(shopPage);
+    }
+
+    public void showMainScreen() {
         // Show initial menu screen
         mainOverlayPage.show();
-        // replayPage.show();
+    }
+
+    public void showReplayScreen(int score) {
+        // Show the replay screen
+        replayPage.show();
     }
 
     public static Vector2 getScreenPercentage(float xPercentage, float yPercentage, Vector2 dimensions) {
@@ -97,38 +176,36 @@ public class UIController {
     }
 
     public void render(SpriteBatch sb) {
-       mainOverlayPage.render(sb);
-       menuPage.render(sb);
-       replayPage.render(sb);
-       settingsPage.render(sb);
+        for (UIContainer page : pages) {
+           page.render(sb);
+       };
     }
 
     public void update(float dt) {
-        mainOverlayPage.update(dt);
-        menuPage.update(dt);
-        replayPage.update(dt);
-        settingsPage.update(dt);
+        for (UIContainer page : pages) {
+            page.update(dt);
+        };
     }
 
     public boolean onTouchDown(Vector2 position) {
-        boolean isUIEvent = false;
+        AtomicBoolean isUIEvent = new AtomicBoolean(false);
 
-        isUIEvent = isUIEvent || mainOverlayPage.touchDown(position);
-        isUIEvent = isUIEvent || menuPage.touchDown(position);
-        isUIEvent = isUIEvent || replayPage.touchDown(position);
-        isUIEvent = isUIEvent || settingsPage.touchDown(position);
+        for (UIContainer page : pages) {
+            boolean isNewUIEvent = page.touchDown(position);
+            isUIEvent.set(isUIEvent.get() || isNewUIEvent);
+        };
 
-        return isUIEvent;
+        return isUIEvent.get();
     }
 
     public boolean onTouchUp(Vector2 position) {
-        boolean isUIEvent = false;
+        AtomicBoolean isUIEvent = new AtomicBoolean(false);
 
-        isUIEvent = isUIEvent || mainOverlayPage.touchUp(position);
-        isUIEvent = isUIEvent || menuPage.touchUp(position);
-        isUIEvent = isUIEvent || replayPage.touchUp(position);
-        isUIEvent = isUIEvent || settingsPage.touchUp(position);
+        for (UIContainer page : pages) {
+            boolean isNewUIEvent = page.touchUp(position);
+            isUIEvent.set(isUIEvent.get() || isNewUIEvent);
+        };
 
-        return isUIEvent;
+        return isUIEvent.get();
     }
 }

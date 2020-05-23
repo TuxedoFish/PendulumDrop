@@ -17,8 +17,9 @@ public final class Constants {
     public static final short CATEGORY_PELLET = 0x0020;
     public static final short CATEGORY_PARTICLE = 0x0040;
     public static final short CATEGORY_POST = 0x0080;
+    public static final short CATEGORY_SIDES = 0x0100;
 
-    public static final short MASK_PLAYER = CATEGORY_SCENERY | CATEGORY_PELLET | CATEGORY_JOINTS;
+    public static final short MASK_PLAYER = CATEGORY_SCENERY | CATEGORY_PELLET | CATEGORY_JOINTS | CATEGORY_SIDES;
     public static final short MASK_JOINTS = CATEGORY_PLAYER;
     public static final short MASK_ROPE = -1;
     public static final short MASK_SCENERY = CATEGORY_PLAYER | CATEGORY_PARTICLE;

@@ -48,7 +48,7 @@ public class InputInterpreter {
 
             if(isUIEvent) { break; };
 
-            if (!(parent.tapOnScreenButton(position, type))) {
+//            if (!(parent.tapOnScreenButton(position, type))) {
                 if (state == "TITLESCREEN") {
                     if (type == "TAP" || type == "TOUCH_UP") {
                         parent.screenTap(position, type);
@@ -119,9 +119,9 @@ public class InputInterpreter {
                         }
                     }
                     if (type == "PAN") {
-                        pan = true;
-                        //ADD IN FOR GAME MODES
-                        parent.setXPan(((position.x - original_location.x) / 4.0f));
+//                        pan = true;
+//                        //ADD IN FOR GAME MODES
+//                        parent.setXPan(((position.x - original_location.x) / 4.0f));
                     }
                 } else if (state == "GAMEOVER") {
                     if (type == "TOUCH_DOWN") {
@@ -136,13 +136,7 @@ public class InputInterpreter {
                     }
                     if (type == "TOUCH_UP") {
                         if (state != "SCROLL") {
-                            if (pan && (position.y - original_location.y) > REAL_WORLD_HEIGHT * (2.0f / 3.0f)) {
-                                //SCROLL FROM GAMEOVER SCREEN TO COLLECTIBLES
-                                state = "SCROLL";
-                                collectible_down = false;
-                                parent.tap();
-                                parent.scroll(-scroll_speed, parent.getGameOverYpos() + REAL_WORLD_HEIGHT, "COLLECTIBLES", "none");
-                            } else if (pan && position.y > original_location.y) {
+                            if (pan) {
                                 //SCROLL BACK TO GAMEOVER SCREEN SCROLL UP WASNT LARGE ENOUGH
                                 state = "SCROLL";
                                 parent.scroll(scroll_speed, parent.getGameOverYpos(), "GAMEOVER", "none");
@@ -181,11 +175,7 @@ public class InputInterpreter {
 
                         //make sure not buyingif(state == "FALL_DOWN") {
                         //if(state != "SCROLL_2") {
-                        if (pan && (currentscrollpos + ((position.y - original_location.y))) - (parent.getGameOverYpos() + REAL_WORLD_HEIGHT) < -REAL_WORLD_HEIGHT / 2f) {
-                            state = "SCROLL";
-                            parent.scroll(scroll_speed, parent.getGameOverYpos(), "GAMEOVER", "none");
-                            parent.tap();
-                        } else if (pan && position.y < original_location.y) {
+                        if (pan && position.y < original_location.y) {
                             state = "SCROLL";
                             parent.scroll(-scroll_speed, parent.getGameOverYpos() + REAL_WORLD_HEIGHT, "COLLECTIBLES", "none");
                         } else if (pan && position.y > original_location.y) {
@@ -229,7 +219,7 @@ public class InputInterpreter {
                 }
 
             }
-        }
+//        }
         return state;
     }
 }

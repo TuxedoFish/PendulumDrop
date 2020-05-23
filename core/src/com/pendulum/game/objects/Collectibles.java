@@ -56,20 +56,20 @@ public class Collectibles {
 //            preferences.setUnlocked(i, false);
 //        }
 
-        prices.add(250); prices.add(500); prices.add(750); prices.add(1000); prices.add(1500); prices.add(2000);
-        prices.add(2500); prices.add(5000); prices.add(10000);
+        prices.add(50); prices.add(50); prices.add(50); prices.add(100); prices.add(100); prices.add(100);
+        prices.add(250); prices.add(250); prices.add(250);
 
         textureballnames.add("orange.png"); textureballnames.add("purple.png"); textureballnames.add("yellow.png");
-        textureballnames.add("aztec_1.png"); textureballnames.add("tyre.png"); textureballnames.add("yin_yang.png");
         textureballnames.add("fruit_orange.png"); textureballnames.add("fruit_watermelon.png"); textureballnames.add("fruit_kiwi.png");
+        textureballnames.add("caitlin.png"); textureballnames.add("fred.png"); textureballnames.add("yin_yang.png");
 
-        textureropenames.add("orange.png"); textureropenames.add("purple.png"); textureropenames.add("yellow.png");
-        textureropenames.add("aztec_1.png"); textureropenames.add("aztec_1.png"); textureropenames.add("aztec_1.png");
-        textureropenames.add("orange.png"); textureropenames.add("green.png"); textureropenames.add("brown.png");
+        textureropenames.add("chain.png"); textureropenames.add("chain.png"); textureropenames.add("chain.png");
+        textureropenames.add("chain.png"); textureropenames.add("chain.png"); textureropenames.add("chain.png");
+        textureropenames.add("chain.png"); textureropenames.add("chain.png"); textureropenames.add("chain.png");
 
-        texturerodnames.add("rope_orange.png"); texturerodnames.add("rope_purple.png"); texturerodnames.add("rope_yellow.png");
-        texturerodnames.add("rod_aztec_1.png"); texturerodnames.add("rod_aztec_1.png"); texturerodnames.add("rod_aztec_1.png");
-        texturerodnames.add("rope_orange.png"); texturerodnames.add("rope_green.png"); texturerodnames.add("rope_brown.png");
+        texturerodnames.add("rod_chain.png"); texturerodnames.add("rod_chain.png"); texturerodnames.add("rod_chain.png");
+        texturerodnames.add("rod_chain.png"); texturerodnames.add("rod_chain.png"); texturerodnames.add("rod_chain.png");
+        texturerodnames.add("rod_chain.png"); texturerodnames.add("rod_chain.png"); texturerodnames.add("rod_chain.png");
     }
 
     public void transpose() {

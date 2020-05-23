@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import static com.pendulum.game.utils.Constants.CATEGORY_POST;
 import static com.pendulum.game.utils.Constants.CATEGORY_ROPE;
 import static com.pendulum.game.utils.Constants.CATEGORY_SCENERY;
+import static com.pendulum.game.utils.Constants.CATEGORY_SIDES;
 import static com.pendulum.game.utils.Constants.CATEGORY_TEXT;
 import static com.pendulum.game.utils.Constants.MASK_POST;
 import static com.pendulum.game.utils.Constants.MASK_ROPE;
@@ -29,7 +30,8 @@ import static com.pendulum.game.utils.Constants.PPM;
 
 public class ObjectHandler {
 
-    public static ArrayList<Entity> createRope(Body joint, Body player, World world, String type, com.pendulum.game.texture.TextureHolder textureHolder, float xdisplacement, String texture) {
+    public static ArrayList<Entity> createRope(Body joint, Body player, World world, String type,
+                                               com.pendulum.game.texture.TextureHolder textureHolder, float xdisplacement, String texture) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
 
@@ -239,7 +241,7 @@ public class ObjectHandler {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(0.01f, REAL_WORLD_HEIGHT/PPM);
         //Add collision masks
-        fixtureDef = createFixture(shape, 1.0f, 0.5f, CATEGORY_SCENERY, MASK_SCENERY);
+        fixtureDef = createFixture(shape, 1.0f, 0.5f, CATEGORY_SIDES, MASK_SCENERY);
         sides[0].createFixture(fixtureDef);
         sides[1].createFixture(fixtureDef);
         shape.dispose();

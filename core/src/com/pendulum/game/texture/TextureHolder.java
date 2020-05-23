@@ -55,8 +55,15 @@ public class TextureHolder {
             texturenames.add("ball_fruit_kiwi.png");
             textures.add(assetManager.get("images/skins/ball_yin_yang.png", Texture.class));
             texturenames.add("ball_yin_yang.png");
+
+            // CUSTOM SKINS
             textures.add(assetManager.get("images/skins/ball_smile.png", Texture.class));
             texturenames.add("ball_orange.png");
+            textures.add(assetManager.get("images/skins/ball_caitlin.png", Texture.class));
+            texturenames.add("ball_caitlin.png");
+            textures.add(assetManager.get("images/skins/ball_fred.png", Texture.class));
+            texturenames.add("ball_fred.png");
+
             textures.add(assetManager.get("images/skins/ball_purple.png", Texture.class));
             texturenames.add("ball_purple.png");
             textures.add(assetManager.get("images/skins/ball_yellow.png", Texture.class));
@@ -65,10 +72,10 @@ public class TextureHolder {
             texturenames.add("ball_tyre.png");
             textures.add(assetManager.get("images/skins/ball_aztec_1.png", Texture.class));
             texturenames.add("ball_aztec_1.png");
-            textures.add(assetManager.get("images/skins/rope_orange.png", Texture.class));
-            texturenames.add("rope_orange.png");
-            textures.add(assetManager.get("images/skins/rope_orange_long.png", Texture.class));
-            texturenames.add("rope_orange_long.png");
+            textures.add(assetManager.get("images/skins/rope_chain.png", Texture.class));
+            texturenames.add("rope_chain.png");
+            textures.add(assetManager.get("images/skins/rod_chain.png", Texture.class));
+            texturenames.add("rod_chain.png");
             textures.add(assetManager.get("images/skins/holder.png", Texture.class));
             texturenames.add("holder.png");
             textures.add(assetManager.get("images/skins/rope_purple.png", Texture.class));
@@ -143,6 +150,26 @@ public class TextureHolder {
             texturenames.add("button.png");
             textures.add(assetManager.get("images/button_long.png", Texture.class));
             texturenames.add("button_long.png");
+            textures.add(assetManager.get("images/button_twitter.png", Texture.class));
+            texturenames.add("button_twitter.png");
+            textures.add(assetManager.get("images/button_instagram.png", Texture.class));
+            texturenames.add("button_instagram.png");
+            textures.add(assetManager.get("images/button_sound_on.png", Texture.class));
+            texturenames.add("button_sound_on.png");
+            textures.add(assetManager.get("images/button_sound_off.png", Texture.class));
+            texturenames.add("button_sound_off.png");
+            textures.add(assetManager.get("images/button_left_arrow.png", Texture.class));
+            texturenames.add("button_left_arrow.png");
+            textures.add(assetManager.get("images/button_right_arrow.png", Texture.class));
+            texturenames.add("button_right_arrow.png");
+            textures.add(assetManager.get("images/button_shop.png", Texture.class));
+            texturenames.add("button_shop.png");
+            textures.add(assetManager.get("images/help_image_1.png", Texture.class));
+            texturenames.add("help_image_1.png");
+            textures.add(assetManager.get("images/help_image_2.png", Texture.class));
+            texturenames.add("help_image_2.png");
+            textures.add(assetManager.get("images/help_image_3.png", Texture.class));
+            texturenames.add("help_image_3.png");
             textures.add(assetManager.get("images/transparent_menu.png", Texture.class));
             texturenames.add("transparent_menu.png");
 
@@ -236,14 +263,18 @@ public class TextureHolder {
         assetManager.load("images/skins/ball_fruit_orange.png", Texture.class, param);
         assetManager.load("images/skins/ball_fruit_kiwi.png", Texture.class, param);
         assetManager.load("images/skins/ball_yin_yang.png", Texture.class, param);
+        // CUSTOM SKINS
         assetManager.load("images/skins/ball_smile.png", Texture.class, param);
+        assetManager.load("images/skins/ball_caitlin.png", Texture.class, param);
+        assetManager.load("images/skins/ball_fred.png", Texture.class, param);
+
         assetManager.load("images/skins/ball_purple.png", Texture.class, param);
         assetManager.load("images/skins/ball_yellow.png", Texture.class, param);
         assetManager.load("images/skins/ball_tyre.png", Texture.class, param);
         assetManager.load("images/skins/ball_aztec_1.png", Texture.class, param);
-        assetManager.load("images/skins/rope_orange.png", Texture.class, param);
+        assetManager.load("images/skins/rope_chain.png", Texture.class, param);
         assetManager.load("images/skins/holder.png", Texture.class, param);
-        assetManager.load("images/skins/rope_orange_long.png", Texture.class, param);
+        assetManager.load("images/skins/rod_chain.png", Texture.class, param);
         assetManager.load("images/skins/rope_purple.png", Texture.class, param);
         assetManager.load("images/skins/rope_yellow.png", Texture.class, param);
         assetManager.load("images/skins/rope_aztec_1.png", Texture.class, param);
@@ -284,7 +315,17 @@ public class TextureHolder {
         assetManager.load("images/transparent_menu.png", Texture.class, param);
         assetManager.load("images/button.png", Texture.class, param);
         assetManager.load("images/button_long.png", Texture.class, param);
-        //BORDERS
+        assetManager.load("images/button_twitter.png", Texture.class, param);
+        assetManager.load("images/button_instagram.png", Texture.class, param);
+        assetManager.load("images/button_sound_on.png", Texture.class, param);
+        assetManager.load("images/button_sound_off.png", Texture.class, param);
+        assetManager.load("images/button_left_arrow.png", Texture.class, param);
+        assetManager.load("images/button_right_arrow.png", Texture.class, param);
+        assetManager.load("images/button_shop.png", Texture.class, param);
+        assetManager.load("images/help_image_1.png", Texture.class, param);
+        assetManager.load("images/help_image_2.png", Texture.class, param);
+        assetManager.load("images/help_image_3.png", Texture.class, param);
+        // BORDERS
         assetManager.load("images/borders/blocked.png", Texture.class, param);
         assetManager.load("images/borders/blocked1.5.png", Texture.class, param);
         assetManager.load("images/borders/blocked2.png", Texture.class, param);

@@ -56,7 +56,7 @@ public class GameGestureHandler implements GestureDetector.GestureListener {
     public boolean pan(float x, float y, float deltaX, float deltaY) {
         scroll.x=x;
         scroll.y=y;
-        // events.add(new InputEvent("PAN", new Vector2(x, y)));
+        events.add(new InputEvent("PAN", new Vector2(x, y)));
         return false;
     }
 

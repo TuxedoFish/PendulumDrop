@@ -105,7 +105,7 @@ public class EntityHandler {
         collectibles = new Collectibles(WORLD_WIDTH, REAL_WORLD_HEIGHT, textureHolder);
 
         player = new com.pendulum.game.objects.Entity(com.pendulum.game.objects.ObjectHandler.createCollisionBody(new Vector2(WORLD_WIDTH/PPM/2, REAL_WORLD_HEIGHT/PPM*0.75f),
-                PLAYER_RADIUS, world, BodyDef.BodyType.DynamicBody, CATEGORY_PLAYER, MASK_PLAYER), textureHolder.getTexture("ball_orange.png"), new Vector2(PLAYER_RADIUS, PLAYER_RADIUS), "player");
+                PLAYER_RADIUS, world, BodyDef.BodyType.DynamicBody, CATEGORY_PLAYER, MASK_PLAYER), textureHolder.getTexture("ball_fred.png"), new Vector2(PLAYER_RADIUS, PLAYER_RADIUS), "player");
         player.addTex(textureHolder.getTexture("ball_purple.png")); player.addTex(textureHolder.getTexture("ball_yellow.png"));
         player.addTex(textureHolder.getTexture("aztec_1.png")); player.addTex(textureHolder.getTexture("ball_tyre.png")); player.addTex(textureHolder.getTexture("yin_yang.png"));
         player.addTex(textureHolder.getTexture("fruit_orange.png")); player.addTex(textureHolder.getTexture("fruit_watermelon.png")); player.addTex(textureHolder.getTexture("fruit_kiwi.png"));
@@ -243,7 +243,7 @@ public class EntityHandler {
     public void died(World world, Camera camera) {
         lastdeathheight = camera.position.y;
         newCycle(lastdeathheight, world);
-        setupGameoverScreen(lastdeathheight - (REAL_WORLD_HEIGHT*2.0f), world);
+        // setupGameoverScreen(lastdeathheight - (REAL_WORLD_HEIGHT*2.0f), world);
         destroyJoint(world);
         gameover=true;
         highscore.setText(font, String.valueOf(preferences.getHighScore()));
@@ -309,11 +309,10 @@ public class EntityHandler {
         player.getBody().setFixedRotation(false);
 
         // Get the rod name
-        String one = collectibles.getRodName();
-        String many = one.substring(0, one.length()-4) + "_long.png";
+        String rodName = collectibles.getRodName();
 
         this.rod = com.pendulum.game.objects.ObjectHandler.createRope(joint_initial.getBody(), player.getBody(),
-                world, "ROD", textureHolder, 0.0f,many).get(0);
+                world, "ROD", textureHolder, 0.0f, rodName).get(0);
 
         rod.getBody().setActive(false);
         player.getBody().setActive(false);
@@ -327,81 +326,6 @@ public class EntityHandler {
 
     public int getTotalLevel() {
         return platformHandler.getTotalLevel();
-    }
-
-    public int screenTap(Vector3 mousepos, String state, String type) {
-        Vector2 button_pos = new Vector2(button_replay.getBody().getPosition().x, button_replay.getBody().getPosition().y - ((lastdeathheight-(REAL_WORLD_HEIGHT*2.0f))/PPM));
-        button_pos.scl(PPM);
-
-        Vector2 up_pos = new Vector2(swipe_icon.getBody().getPosition().x, swipe_icon.getBody().getPosition().y - ((lastdeathheight-(REAL_WORLD_HEIGHT*2.0f))/PPM));
-        up_pos.scl(PPM);
-
-        Vector2 down_pos = new Vector2(swipe_icon_down.getBody().getPosition().x, swipe_icon_down.getBody().getPosition().y - ((lastdeathheight-(REAL_WORLD_HEIGHT*1.0f))/PPM));
-        down_pos.scl(PPM);
-
-        if(pan==0.0f) {
-            if (state != "COLLECTIBLES" && button_pos.sub(new Vector2(mousepos.x * (WORLD_WIDTH / Gdx.graphics.getWidth()), REAL_WORLD_HEIGHT - (mousepos.y * (REAL_WORLD_HEIGHT / Gdx.graphics.getHeight())))).len() < (radius  * PPM)) {
-                if((button_down && button_pressed) || type=="TAP") {
-                    resetButtons();
-                    return 1;
-                }
-            }
-            if (state != "COLLECTIBLES" && up_pos.sub(new Vector2(mousepos.x * (WORLD_WIDTH / Gdx.graphics.getWidth()), REAL_WORLD_HEIGHT - (mousepos.y * (REAL_WORLD_HEIGHT / Gdx.graphics.getHeight())))).len() <
-                    (swipe_icon.getSize().y / 2.0f * PPM)) {
-                if(button_toshop || type=="TAP") {
-                    resetButtons();
-                    return 2;
-                }
-            }
-            if (state != "GAMEOVER" && down_pos.sub(new Vector2(mousepos.x * (WORLD_WIDTH / Gdx.graphics.getWidth()), REAL_WORLD_HEIGHT - (mousepos.y * (REAL_WORLD_HEIGHT / Gdx.graphics.getHeight())))).len() <
-                    (swipe_icon_down.getSize().y / 2.0f * PPM)) {
-                if(button_togameover || type=="TAP") {
-                    resetButtons();
-                    return 3;
-                }
-            }
-        }
-
-        return -1;
-    }
-    public void resetButtons() {
-        button_pressed = false;
-        button_down = false;
-        button_toshop = false;
-        button_togameover = false;
-    }
-    public void screenDown(Vector3 mousepos, String type, String state) {
-        Vector2 button_pos = new Vector2(button_replay.getBody().getPosition().x, button_replay.getBody().getPosition().y - ((lastdeathheight-(REAL_WORLD_HEIGHT*2.0f)-(pan))/PPM));
-        button_pos.scl(PPM);
-
-        Vector2 up_pos = new Vector2(swipe_icon.getBody().getPosition().x, swipe_icon.getBody().getPosition().y - ((lastdeathheight-(REAL_WORLD_HEIGHT*2.0f))/PPM));
-        up_pos.scl(PPM);
-
-        Vector2 down_pos = new Vector2(swipe_icon_down.getBody().getPosition().x, swipe_icon_down.getBody().getPosition().y - ((lastdeathheight-(REAL_WORLD_HEIGHT*1.0f))/PPM));
-        down_pos.scl(PPM);
-
-        if(button_pos.sub(new Vector2(mousepos.x*(WORLD_WIDTH/Gdx.graphics.getWidth()), REAL_WORLD_HEIGHT -  (mousepos.y*(REAL_WORLD_HEIGHT/Gdx.graphics.getHeight())))).len() < (radius*PPM)) {
-            if(type=="TOUCH_DOWN") {
-                button_down = true;
-                button_pressed = true;
-            } else {
-                if(button_pressed) {
-                    button_down = true;
-                }
-            }
-        } else {
-            button_down = false;
-        }
-        if(pan==0.0f) {
-            if (state != "COLLECTIBLES" && up_pos.sub(new Vector2(mousepos.x * (WORLD_WIDTH / Gdx.graphics.getWidth()), REAL_WORLD_HEIGHT - (mousepos.y * (REAL_WORLD_HEIGHT / Gdx.graphics.getHeight())))).len() <
-                    (swipe_icon.getSize().y / 2.0f * PPM)) {
-                button_toshop = true;
-            }
-            if (state != "GAMEOVER" && down_pos.sub(new Vector2(mousepos.x * (WORLD_WIDTH / Gdx.graphics.getWidth()), REAL_WORLD_HEIGHT - (mousepos.y * (REAL_WORLD_HEIGHT / Gdx.graphics.getHeight())))).len() <
-                    (swipe_icon_down.getSize().y / 2.0f * PPM)) {
-                button_togameover = true;
-            }
-        }
     }
 
     public void setupGameoverScreen(float topy, World world) {
@@ -419,16 +343,16 @@ public class EntityHandler {
                 new Vector2(2*radius, 2*radius), "emoji");
     }
     public void disposeGameoverScreen(World world) {
-        world.destroyBody(shop_icon.getBody());
-        world.destroyBody(swipe_icon.getBody());
-        world.destroyBody(button_replay.getBody());
-        world.destroyBody(shop_leave_icon.getBody());
-        world.destroyBody(swipe_icon_down.getBody());
-        shop_icon = null;
-        swipe_icon = null;
-        button_replay = null;
-        shop_leave_icon = null;
-        swipe_icon_down = null;
+//        world.destroyBody(shop_icon.getBody());
+//        world.destroyBody(swipe_icon.getBody());
+//        world.destroyBody(button_replay.getBody());
+//        world.destroyBody(shop_leave_icon.getBody());
+//        world.destroyBody(swipe_icon_down.getBody());
+//        shop_icon = null;
+//        swipe_icon = null;
+//        button_replay = null;
+//        shop_leave_icon = null;
+//        swipe_icon_down = null;
     }
 
     public float getGamemodeTransparency() {

@@ -23,6 +23,7 @@ import com.pendulum.game.utils.Constants;
 
 import java.util.ArrayList;
 
+import static com.pendulum.game.utils.Constants.CATEGORY_SCENERY;
 import static com.pendulum.game.utils.Constants.PPM;
 import static com.pendulum.game.utils.Constants.SCORE_RADIUS;
 
@@ -34,7 +35,6 @@ public class PlayScreen {
     private static float MIN_VELOCITY = -10f;
     private float camera_velocity = MIN_VELOCITY;
     private float camera_acceleration = -0.002f;
-
     private com.pendulum.game.objects.Entity chaser;
     private float timeperiod = 0.02f;
     private float chaser_time = 0.0f;
@@ -284,22 +284,12 @@ public class PlayScreen {
     }
     public void screenTap(Vector3 mousepos, String type) {
         if(state=="GAMEOVER" || state == "COLLECTIBLES") {
-            int instruction = entities.screenTap(mousepos, state, type);
 
-            if (instruction == 1) {
-                tap();
-                playAgain();
-            } else if(instruction==2) {
-                tap();
-                scroll_shop = 1;
-            } else if(instruction==3) {
-                tap();
-                scroll_shop = 2;
-            }
         } else if(state=="TITLESCREEN") {
             Vector2 button_pos = new Vector2(WORLD_WIDTH/2.0f, 0.25f*REAL_WORLD_HEIGHT);
 
-            if(button_pos.sub(new Vector2(mousepos.x*(WORLD_WIDTH/Gdx.graphics.getWidth()), REAL_WORLD_HEIGHT -  (mousepos.y*(REAL_WORLD_HEIGHT/Gdx.graphics.getHeight())))).len() < (playbutton.getSize().x/2.0f* PPM)) {
+            if(button_pos.sub(new Vector2(mousepos.x*(WORLD_WIDTH/Gdx.graphics.getWidth()),
+                    REAL_WORLD_HEIGHT -  (mousepos.y*(REAL_WORLD_HEIGHT/Gdx.graphics.getHeight())))).len() < (playbutton.getSize().x/2.0f* PPM)) {
                 if(start_pressed || state=="TAP") {
                     tap();
                     initialStart();
@@ -327,8 +317,6 @@ public class PlayScreen {
             } else {
                 startbutton_down = false;
             }
-        } else if(state=="GAMEOVER") {
-            entities.screenDown(mousepos, type, state);
         }
     }
     public void initialStart() {
@@ -438,7 +426,12 @@ public class PlayScreen {
                     color_speed = new Vector3(1.0f-blue.r, 1.0f-blue.g, 1.0f-blue.b).scl(1.0f/color_timeperiod);
                     color_current_time = 0.0f;
                     flash = true;
-                    gameover();
+
+                    // If the contact was a platform then it should trigger game over
+                    if(contact.getFixtureA().getFilterData().categoryBits==CATEGORY_SCENERY
+                        || contact.getFixtureB().getFilterData().categoryBits==CATEGORY_SCENERY) {
+                        gameover();
+                    }
                 }
             }
         }
@@ -519,7 +512,12 @@ public class PlayScreen {
                     entities.play(world);
                 }
                 if(specialstate=="respawn") {respawn(); specialstate="none";}
-                if(specialstate=="reload game") {ishints = false; entities.reloadGame(world); specialstate="none"; gameoverYpos= camera.position.y;}
+                if(specialstate=="reload game") {
+                    ishints = false;
+                    entities.reloadGame(world);
+                    specialstate="none";
+                    gameoverYpos= camera.position.y;
+                }
             } else {
                 camera.position.set(camera.position.x, camera.position.y + (camera_velocity * PPM * dt),
                         camera.position.z);
@@ -720,8 +718,10 @@ public class PlayScreen {
             camera.update();
             cameraypos=camera.position.y;
             if(game_on_transparency<=0.0f) {
+                // CLICKED INITIAL PLAY BUTTON NOW READY TO PLAY
                 game_on_transparency = 0.0f;
                 playing=true;
+                UserInterface.showMainScreen();
                 state="STARTSCREEN";
             }
         }
@@ -766,8 +766,36 @@ public class PlayScreen {
     public boolean isLoaded() {
         if(th.isFinishedLoading()) {
             // Set up the User Interfaces
+            // Set the sound
+            sound_on = preferences.isSoundOn();
             Vector2 dimensions = new Vector2(DEVICE_WIDTH, DEVICE_HEIGHT);
-            UserInterface = new UIController(dimensions, th);
+            UserInterface = new UIController(dimensions, th, preferences, new UIController.UIControllerInteractions() {
+                @Override
+                public void setIsSoundOn(boolean isSoundOn) {
+                    sound_on = isSoundOn;
+                }
+
+                @Override
+                public void navigateToShop() {
+                    if(state=="GAMEOVER") {
+                        scroll_shop = 1;
+                    }
+                }
+
+                @Override
+                public void navigateToReplay() {
+                    if(state=="COLLECTIBLES") {
+                        scroll_shop = 2;
+                    }
+                }
+
+                @Override
+                public void playAgain() {
+                    if(state=="GAMEOVER") {
+                        playAgain = true;
+                    }
+                }
+            });
 
             background = th.getTexture("background.png");
             playbutton = new com.pendulum.game.objects.Entity(com.pendulum.game.objects.ObjectHandler.createTextBox(new Vector2(WORLD_WIDTH/2.0f/ PPM, 0.0f), 7.0f, 7.0f, world), th.getTexture("play.png"),
@@ -811,6 +839,7 @@ public class PlayScreen {
                     preferences.setHighScore(score);
                 }
                 entities.died(world, camera);
+                UserInterface.showReplayScreen(score);
                 state = "SCROLL";
                 scrollvel=scroll_speed;
                 scrollchangeto = "GAMEOVER";
@@ -820,22 +849,6 @@ public class PlayScreen {
         });
     }
 
-    public boolean tapOnScreenButton(Vector3 mousepos, String type) {
-        float size = 5f;
-        Vector2 sound_pos = new Vector2(size*0.5f* PPM, size*0.5f* PPM);
-
-        if(state!="TITLESCREEN" && state!="FADE_IN" && state!="FADE_IN_GAME") {
-             if (sound_pos.sub(new Vector2(mousepos.x * (WORLD_WIDTH / Gdx.graphics.getWidth()), REAL_WORLD_HEIGHT - (mousepos.y * (REAL_WORLD_HEIGHT / Gdx.graphics.getHeight())))).len() < (size / 2.0f * PPM)) {
-                if (type == "TOUCH_UP") {
-                    System.out.println("CHANGE");
-                    sound_on = !sound_on;
-                    return false;
-                }
-                return true;
-            }
-        }
-        return false;
-    }
     public void render() {
         timer += entities.getTime();
         entities.resetTime();

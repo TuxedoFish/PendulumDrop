@@ -11,6 +11,7 @@ public class Preferences {
     public final static String HIGHSCORE = "score";
     public final static String PELLETS = "pellets";
     public final static String UNLOCKED = "unlocked";
+    public final static String IS_SOUND_ON = "is_sound";
     public final static String INSTRUCTION = "instruction";
     public final static String SLALOM_INSTRUCTION = "slalom_instruction";
     public final static String SWINGS_INSTRUCTION = "swings_instruction";
@@ -26,6 +27,13 @@ public class Preferences {
     }
     public void setHighScore(int highScore) {
         optionPref.putInteger(HIGHSCORE, highScore);
+        optionPref.flush();
+    }
+    public boolean isSoundOn() {
+        return optionPref.getBoolean(IS_SOUND_ON);
+    }
+    public void setIsSoundOn(boolean isSoundOn) {
+        optionPref.putBoolean(IS_SOUND_ON, isSoundOn);
         optionPref.flush();
     }
     public int getSelected() {
